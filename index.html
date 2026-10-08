@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuizMaster - Latihan Soal</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 650px;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .header h1 {
+      color: #5b4bc4;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      color: #777;
+    }
+
+    .progress-box {
+      margin-bottom: 25px;
+    }
+
+    .progress-info {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      color: #555;
+      font-size: 14px;
+    }
+
+    .progress {
+      width: 100%;
+      height: 10px;
+      background: #eee;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #667eea;
+      transition: 0.3s;
+    }
+
+    .question {
+      font-size: 21px;
+      font-weight: bold;
+      color: #222;
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+
+    .option {
+      width: 100%;
+      padding: 15px;
+      margin: 10px 0;
+      border: 2px solid #ddd;
+      border-radius: 12px;
+      background: white;
+      cursor: pointer;
+      text-align: left;
+      font-size: 16px;
+      transition: 0.2s;
+    }
+
+    .option:hover {
+      border-color: #667eea;
+      background: #f3f4ff;
+    }
+
+    .option.correct {
+      background: #d4edda;
+      border-color: #28a745;
+    }
+
+    .option.wrong {
+      background: #f8d7da;
+      border-color: #dc3545;
+    }
+
+    .option:disabled {
+      cursor: not-allowed;
+    }
+
+    .next-btn,
+    .restart-btn {
+      width: 100%;
+      border: none;
+      padding: 15px;
+      border-radius: 12px;
+      background: #667eea;
+      color: white;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 20px;
+    }
+
+    .next-btn:hover,
+    .restart-btn:hover {
+      background: #5545d4;
+    }
+
+    .result {
+      text-align: center;
+      display: none;
+    }
+
+    .result h2 {
+      color: #5b4bc4;
+      margin-bottom: 15px;
+    }
+
+    .score {
+      font-size: 50px;
+      font-weight: bold;
+      color: #667eea;
+      margin: 20px 0;
+    }
+
+    .message {
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- HALAMAN QUIZ -->
+    <div id="quizPage">
+
+      <div class="header">
+        <h1>📚 QuizMaster</h1>
+        <p>Latihan soal untuk meningkatkan kemampuanmu</p>
+      </div>
+
+      <div class="progress-box">
+        <div class="progress-info">
+          <span id="questionNumber">Soal 1</span>
+          <span id="scoreText">Skor: 0</span>
+        </div>
+
+        <div class="progress">
+          <div class="progress-bar" id="progressBar"></div>
+        </div>
+      </div>
+
+      <div class="question" id="question">
+        Pertanyaan akan muncul di sini
+      </div>
+
+      <div id="options"></div>
+
+      <button class="next-btn hidden" id="nextButton" onclick="nextQuestion()">
+        Soal Berikutnya →
+      </button>
+
+    </div>
+
+    <!-- HASIL QUIZ -->
+    <div class="result" id="resultPage">
+
+      <h2>🎉 Quiz Selesai!</h2>
+
+      <p>Skor kamu:</p>
+
+      <div class="score" id="finalScore">
+        0
+      </div>
+
+      <p class="message" id="resultMessage">
+        Bagus!
+      </p>
+
+      <button class="restart-btn" onclick="restartQuiz()">
+        🔄 Ulangi Quiz
+      </button>
+
+    </div>
+
+  </div>
+
+
+<script>
+
+  // ==========================
+  // DATA SOAL
+  // ==========================
+
+  const questions = [
+
+    {
+      question: "Berapakah hasil dari 12 × 5?",
+      options: [
+        "50",
+        "60",
+        "70",
+        "80"
+      ],
+      answer: 1
+    },
+
+    {
+      question: "Planet yang dikenal sebagai Planet Merah adalah...",
+      options: [
+        "Venus",
+        "Jupiter",
+        "Mars",
+        "Saturnus"
+      ],
+      answer: 2
+    },
+
+    {
+      question: "Ibukota Indonesia adalah...",
+      options: [
+        "Bandung",
+        "Surabaya",
+        "Jakarta",
+        "Yogyakarta"
+      ],
+      answer: 2
+    },
+
+    {
+      question: "Hasil dari 100 ÷ 4 adalah...",
+      options: [
+        "20",
+        "25",
+        "30",
+        "40"
+      ],
+      answer: 1
+    },
+
+    {
+      question: "Organ tubuh manusia yang berfungsi untuk memompa darah adalah...",
+      options: [
+        "Paru-paru",
+        "Ginjal",
+        "Jantung",
+        "Lambung"
+      ],
+      answer: 2
+    },
+
+    {
+      question: "Bahasa resmi negara Indonesia adalah...",
+      options: [
+        "Bahasa Jawa",
+        "Bahasa Sunda",
+        "Bahasa Indonesia",
+        "Bahasa Melayu"
+      ],
+      answer: 2
+    },
+
+    {
+      question: "Semboyan bangsa Indonesia adalah...",
+      options: [
+        "Tut Wuri Handayani",
+        "Bhinneka Tunggal Ika",
+        "Indonesia Raya",
+        "Garuda Pancasila"
+      ],
+      answer: 1
+    },
+
+    {
+      question: "Jumlah sila dalam Pancasila adalah...",
+      options: [
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      answer: 2
+    }
+
+  ];
+
+
+  // ==========================
+  // VARIABEL QUIZ
+  // ==========================
+
+  let currentQuestion = 0;
+  let score = 0;
+  let answered = false;
+
+
+  // ==========================
+  // MENAMPILKAN SOAL
+  // ==========================
+
+  function showQuestion() {
+
+    answered = false;
+
+    const questionData = questions[currentQuestion];
+
+    document.getElementById("question").textContent =
+      questionData.question;
+
+    document.getElementById("questionNumber").textContent =
+      "Soal " + (currentQuestion + 1) + " dari " + questions.length;
+
+    document.getElementById("scoreText").textContent =
+      "Skor: " + score;
+
+    const progress =
+      ((currentQuestion) / questions.length) * 100;
+
+    document.getElementById("progressBar").style.width =
+      progress + "%";
+
+
+    const optionsContainer =
+      document.getElementById("options");
+
+    optionsContainer.innerHTML = "";
+
+
+    questionData.options.forEach((option, index) => {
+
+      const button = document.createElement("button");
+
+      button.className = "option";
+
+      button.textContent =
+        String.fromCharCode(65 + index) + ". " + option;
+
+      button.onclick = () =>
+        selectAnswer(index);
+
+      optionsContainer.appendChild(button);
+
+    });
+
+
+    document.getElementById("nextButton")
+      .classList.add("hidden");
+  }
+
+
+  // ==========================
+  // MEMILIH JAWABAN
+  // ==========================
+
+  function selectAnswer(selectedIndex) {
+
+    if (answered) return;
+
+    answered = true;
+
+    const correctAnswer =
+      questions[currentQuestion].answer;
+
+    const options =
+      document.querySelectorAll(".option");
+
+
+    options.forEach((button, index) => {
+
+      button.disabled = true;
+
+      if (index === correctAnswer) {
+        button.classList.add("correct");
+      }
+
+      if (index === selectedIndex &&
+          selectedIndex !== correctAnswer) {
+
+        button.classList.add("wrong");
+
+      }
+
+    });
+
+
+    if (selectedIndex === correctAnswer) {
+      score += 10;
+    }
+
+
+    document.getElementById("scoreText").textContent =
+      "Skor: " + score;
+
+    document.getElementById("nextButton")
+      .classList.remove("hidden");
+  }
+
+
+  // ==========================
+  // SOAL BERIKUTNYA
+  // ==========================
+
+  function nextQuestion() {
+
+    currentQuestion++;
+
+    if (currentQuestion < questions.length) {
+
+      showQuestion();
+
+    } else {
+
+      showResult();
+
+    }
+
+  }
+
+
+  // ==========================
+  // HASIL
+  // ==========================
+
+  function showResult() {
+
+    document.getElementById("quizPage")
+      .style.display = "none";
+
+    document.getElementById("resultPage")
+      .style.display = "block";
+
+    document.getElementById("finalScore")
+      .textContent = score;
+
+
+    let message = "";
+
+    if (score === 80) {
+
+      message = "🏆 Sempurna! Kamu hebat banget!";
+
+    } else if (score >= 60) {
+
+      message = "👏 Bagus! Tinggal sedikit lagi menuju sempurna.";
+
+    } else if (score >= 40) {
+
+      message = "💪 Lumayan! Terus latihan ya.";
+
+    } else {
+
+      message = "📖 Jangan menyerah! Yuk belajar dan coba lagi.";
+
+    }
+
+    document.getElementById("resultMessage")
+      .textContent = message;
+
+  }
+
+
+  // ==========================
+  // ULANGI QUIZ
+  // ==========================
+
+  function restartQuiz() {
+
+    currentQuestion = 0;
+
+    score = 0;
+
+    document.getElementById("quizPage")
+      .style.display = "block";
+
+    document.getElementById("resultPage")
+      .style.display = "none";
+
+    showQuestion();
+
+  }
+
+
+  // Jalankan quiz
+  showQuestion();
+
+</script>
+
+</body>
+</html>
